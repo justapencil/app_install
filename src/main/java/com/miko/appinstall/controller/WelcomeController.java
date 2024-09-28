@@ -1,17 +1,20 @@
 package com.miko.appinstall.controller;
 
+import com.miko.appinstall.model.response.AppResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
 public class WelcomeController {
 
   public WelcomeController(Router router) {
-    router.get("/welcome").handler(this::welcomeHandler);
+    router.get("/").handler(this::welcomeHandler);
   }
 
   private void welcomeHandler(RoutingContext ctx) {
-    ctx.response()
-      .putHeader("content-type", "text/plain")
-      .end("Welcome! The application is up and running.");
+    new AppResponse()
+      .status(200)
+      .contentType("text/plain")
+      .body("Welcome! The application is up and running.")
+      .send(ctx);
   }
 }
