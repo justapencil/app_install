@@ -21,19 +21,22 @@ public class InstallationQueueEntity extends AuditModel  {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "event_type", nullable = false)
-  private EventTypeEnum eventType;
+  private EventTypeEnum eventType = EventTypeEnum.ADD;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "event_status", nullable = false)
-  private EventStatusEnum eventStatus;
+  private EventStatusEnum eventStatus = EventStatusEnum.SCHEDULED;
 
   @Column(name = "version", nullable = false)
   private String version;
 
   @Column(name = "retry_attempt")
-  private Integer retryAttempt;
+  private Integer retryAttempt = 0;
 
   @Column(name = "retry_reason")
   private String retryReason;
 
+  public InstallationQueueEntity(Long id) {
+    this.appId = id;
+  }
 }

@@ -11,10 +11,6 @@ public class WelcomeController {
   }
 
   private void welcomeHandler(RoutingContext ctx) {
-    new AppResponse()
-      .status(200)
-      .contentType("text/plain")
-      .body("Welcome! The application is up and running.")
-      .send(ctx);
+    new AppResponse().success("Welcome! The application is up and running.").send(ctx);
   }
 }

@@ -4,6 +4,7 @@ import com.miko.appinstall.config.AppConfig;
 import com.miko.appinstall.config.InfluxDBConfig;
 import com.miko.appinstall.config.MySQLConfig;
 import com.miko.appinstall.controller.WelcomeController;
+import com.miko.appinstall.handler.GlobalErrorHandler;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.ext.web.Router;
@@ -31,7 +32,10 @@ public class MainVerticle extends AbstractVerticle {
 
     Router router = Router.router(vertx);
 
-    router.route().handler(this::setDefaultContentType);
+    router
+      .route()
+      .handler(this::setDefaultContentType)
+      .failureHandler(GlobalErrorHandler::handleFailure);
 
     new WelcomeController(router);
 

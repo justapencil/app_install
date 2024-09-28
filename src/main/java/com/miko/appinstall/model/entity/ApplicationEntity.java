@@ -1,5 +1,6 @@
 package com.miko.appinstall.model.entity;
 
+import com.miko.appinstall.model.ApplicationRequest;
 import lombok.Getter;
 import lombok.Setter;
 import javax.persistence.*;
@@ -20,4 +21,7 @@ public class ApplicationEntity extends AuditModel {
   @Column(name = "version", nullable = false)
   private String version;
 
+  public ApplicationEntity(ApplicationRequest applicationRequest) {
+    this.appName = applicationRequest.getName();
+  }
 }

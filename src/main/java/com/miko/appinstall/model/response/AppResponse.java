@@ -1,15 +1,16 @@
 package com.miko.appinstall.model.response;
 
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class AppResponse {
+public class AppResponse<T> {
 
   private int statusCode;
-  private String body;
+  private T body;
   private String contentType;
   private Map<String, String> headers;
 
@@ -19,22 +20,29 @@ public class AppResponse {
     this.contentType = "text/plain";
   }
 
-  public AppResponse status(int statusCode) {
+  public AppResponse<T> status(int statusCode) {
     this.statusCode = statusCode;
     return this;
   }
-  public AppResponse body(String body) {
+
+  public AppResponse<T> body(T body) {
     this.body = body;
     return this;
   }
 
-  public AppResponse contentType(String contentType) {
+  public AppResponse<T> contentType(String contentType) {
     this.contentType = contentType;
     return this;
   }
 
-  public AppResponse header(String name, String value) {
+  public AppResponse<T> header(String name, String value) {
     this.headers.put(name, value);
+    return this;
+  }
+
+  public AppResponse<T> json(T body) {
+    this.body = body;
+    this.contentType = "application/json";
     return this;
   }
 
@@ -45,9 +53,27 @@ public class AppResponse {
     headers.forEach(response::putHeader);
 
     if (body != null) {
-      response.end(body);
+      if (contentType.equals("application/json")) {
+        response.end(Json.encodePrettily(body));
+      } else {
+        response.end(body.toString());
+      }
     } else {
       response.end();
     }
+  }
+
+  public void sendError(RoutingContext ctx, int statusCode, String message) {
+    this.statusCode = statusCode;
+    this.body = (T) Map.of("error", message);
+    this.contentType = "application/json";
+    this.send(ctx);
+  }
+
+  public AppResponse<T> success(String s) {
+    this.statusCode = 200;
+    this.body = (T) Map.of("message", s);
+    this.contentType = "application/json";
+    return this;
   }
 }
