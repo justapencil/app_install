@@ -23,7 +23,6 @@ public class InstallationQueueEntityListener {
   }
 
   private void writeToInfluxDB(InstallationQueueEntity entity) {
-    log.info("Writing installation event to InfluxDB");
     String measurement = "app_installation_logs_v1";
 
     Point point = Point
@@ -38,7 +37,6 @@ public class InstallationQueueEntityListener {
 
     try (WriteApi writeApi = influxDBClient.getWriteApi()) {
       writeApi.writePoint(point);
-      log.info("Installation event written to InfluxDB");
     } catch (Exception e) {
       log.error("Failed to write installation event to InfluxDB", e);
     }

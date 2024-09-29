@@ -98,7 +98,10 @@ public class InstallationWorkerVerticle extends AbstractVerticle {
   }
 
   private void completeTaskProcessing(InstallationQueueEntity task) {
+    log.info("Task processing completed for app id: {}", task.getAppId());
+    log.info("Active tasks: {}", activeTasks.get());
     int remainingTasks = activeTasks.decrementAndGet();
+    log.info("Remaining tasks: {}", remainingTasks);
     if (remainingTasks == 0) {
       log.info("All scheduled tasks have been processed. Rescheduling ERROR tasks.");
       rescheduleErrorTasks();
