@@ -59,11 +59,7 @@ public class ApplicationHandler {
         return installationHandler.addToInstallationQueue(installationQueueEntity)
           .compose(queueSuccess -> Future.succeededFuture(applicationEntity));  // Return the applicationEntity for the next step
       })
-      .compose(savedApp -> {
-        return applicationRepository.save(savedApp);
-      })
       .onSuccess(savedApp -> {
-        // Send success response
         new AppResponse<>()
           .json(savedApp)
           .status(201)

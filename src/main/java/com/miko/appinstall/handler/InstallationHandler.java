@@ -13,8 +13,14 @@ public class InstallationHandler {
   private final InstallationQueueRepository installationQueueRepository;
 
   public Future<Void> addToInstallationQueue(InstallationQueueEntity installationQueueEntity) {
-    return installationQueueRepository.save(installationQueueEntity)
+    return installationQueueRepository.findByAppId(installationQueueEntity)
       .onSuccess(installationQueueEntity1 -> {
+        if (installationQueueEntity1 != null) {
+          log.info("Installation already exists for app id {}", installationQueueEntity.getAppId());
+          return;
+        } else {
+          installationQueueRepository.save(installationQueueEntity);
+        }
         log.info("Added installation to app id {} to queue", installationQueueEntity.getAppId());
       })
       .onFailure(throwable -> {
