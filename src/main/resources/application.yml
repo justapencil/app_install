@@ -10,9 +10,9 @@ hibernate:
 
 influxdb:
   url: http://localhost:8086
-  username: admin
-  password: admin
-  database: logs_db
+  token: F_JfcXA2SJq883W9Izpr4iyqlFOv_jNoGZQpTBtafCMb1J3992XgnZ6ejpKKb8-bF1AwDLzRW9jpuxprQUftoQ==
+  org: miko
+  bucket: app_installation_system
 
 http:
   port: 8080

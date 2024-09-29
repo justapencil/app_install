@@ -1,5 +1,6 @@
 package com.miko.appinstall;
 
+import com.influxdb.client.InfluxDBClient;
 import com.miko.appinstall.annotation.scanner.AnnotationRouteScanner;
 import com.miko.appinstall.config.AppConfig;
 import com.miko.appinstall.config.InfluxDBConfig;
@@ -9,6 +10,7 @@ import com.miko.appinstall.controller.WelcomeController;
 import com.miko.appinstall.handler.ApplicationHandler;
 import com.miko.appinstall.handler.GlobalErrorHandler;
 import com.miko.appinstall.handler.InstallationHandler;
+import com.miko.appinstall.listener.InstallationQueueEntityListener;
 import com.miko.appinstall.repository.ApplicationRepository;
 import com.miko.appinstall.repository.InstallationQueueRepository;
 import com.miko.appinstall.repository.impl.ApplicationRepositoryImpl;
@@ -29,7 +31,7 @@ import java.util.Map;
 public class MainVerticle extends AbstractVerticle {
 
   private SessionFactory sessionFactory;
-  private InfluxDB influxDBClient;
+  private InfluxDBClient influxDBClient;
 
   @Override
   public void start(Promise<Void> startPromise) {
@@ -50,7 +52,7 @@ public class MainVerticle extends AbstractVerticle {
     WelcomeController welcomeController = new WelcomeController();
     InfluxDBConfig influxDBConfig = new InfluxDBConfig(appConfig.getInfluxDBConfig());
     influxDBClient = influxDBConfig.getInfluxDBClient();
-
+    InstallationQueueEntityListener installationQueueEntityListener = new InstallationQueueEntityListener(influxDBClient);
     Router router = Router.router(vertx);
 
     router
