@@ -1,7 +1,9 @@
 package com.miko.appinstall.model.entity;
 
 import com.miko.appinstall.model.ApplicationRequest;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
 
@@ -9,6 +11,8 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "app_core")
+@AllArgsConstructor
+@NoArgsConstructor
 public class ApplicationEntity extends AuditModel {
 
   @Id

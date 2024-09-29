@@ -2,13 +2,17 @@ package com.miko.appinstall.model.entity;
 
 import com.miko.appinstall.constant.enums.EventStatusEnum;
 import com.miko.appinstall.constant.enums.EventTypeEnum;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
 
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "installation_queue")
 public class InstallationQueueEntity extends AuditModel  {
 
