@@ -70,7 +70,7 @@ public class MainVerticle extends AbstractVerticle {
     routeScanner.scanAndRegisterRoutes("com.miko.appinstall.controller");
 
     vertx.eventBus().registerCodec(new InstallationQueueEntityCodec());
-    DeploymentOptions options = new DeploymentOptions().setWorker(true);  // Set worker=true to make it a worker verticle
+    DeploymentOptions options = new DeploymentOptions().setWorker(true);
 
     vertx.deployVerticle(new InstallationWorkerVerticle(installationQueueRepository), options, res -> {
       if (res.succeeded()) {

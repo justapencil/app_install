@@ -9,7 +9,6 @@ import io.vertx.core.Promise;
 import io.vertx.core.eventbus.DeliveryOptions;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Random;
 
@@ -18,10 +17,7 @@ public class InstallationWorkerVerticle extends AbstractVerticle {
 
   private static final int MAX_RETRY_ATTEMPTS = 3;
   private final InstallationQueueRepository installationQueueRepository;
-
-  // Active tasks counter or Set for tracking active tasks
-  private final AtomicInteger activeTasks = new AtomicInteger(0);  // Option 1: counter
-  // private final Set<Long> activeTasksSet = ConcurrentHashMap.newKeySet();  // Option 2: Set for task IDs
+  private final AtomicInteger activeTasks = new AtomicInteger(0);
 
   public InstallationWorkerVerticle(InstallationQueueRepository installationQueueRepository) {
     this.installationQueueRepository = installationQueueRepository;
@@ -69,7 +65,7 @@ public class InstallationWorkerVerticle extends AbstractVerticle {
   private Future<Void> updateInstallationStatus(InstallationQueueEntity task, EventStatusEnum status) {
     task.setEventStatus(status);
     if (status.equals(EventStatusEnum.COMPLETED)) {
-      task.setDefaultVersion();  // Set default version if completed
+      task.setDefaultVersion();
     }
     return installationQueueRepository.save(task).mapEmpty();
   }
@@ -77,7 +73,7 @@ public class InstallationWorkerVerticle extends AbstractVerticle {
   private void handleFailureAndRetry(InstallationQueueEntity task, String reason) {
     log.error("Installation failed for app id: {}. Reason: {}", task.getAppId(), reason);
 
-    task.setRetryAttempt(task.getRetryAttempt() + 1);  // Increment retry attempt
+    task.setRetryAttempt(task.getRetryAttempt() + 1);
     task.setRetryReason(reason);
 
     if (task.getRetryAttempt() < MAX_RETRY_ATTEMPTS) {
@@ -92,15 +88,10 @@ public class InstallationWorkerVerticle extends AbstractVerticle {
       });
 
     } else {
-      // Mark the task as permanently failed
       log.info("Max retries reached for app id: {}. Marking as failed.", task.getAppId());
-      task.setEventStatus(EventStatusEnum.ERROR);  // Mark as failed
-
-      // Save the task with the failed status
+      task.setEventStatus(EventStatusEnum.ERROR);
       updateInstallationStatus(task, EventStatusEnum.ERROR).onComplete(res -> {
         log.info("Task permanently failed after {} retries for app id: {}", MAX_RETRY_ATTEMPTS, task.getAppId());
-
-        // Decrement active task counter and check if all are done
         completeTaskProcessing(task);
       });
     }
