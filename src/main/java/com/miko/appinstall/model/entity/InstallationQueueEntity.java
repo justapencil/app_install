@@ -27,7 +27,7 @@ public class InstallationQueueEntity extends AuditModel  {
   @Column(name = "event_status", nullable = false)
   private EventStatusEnum eventStatus = EventStatusEnum.SCHEDULED;
 
-  @Column(name = "version", nullable = false)
+  @Column(name = "version")
   private String version;
 
   @Column(name = "retry_attempt")

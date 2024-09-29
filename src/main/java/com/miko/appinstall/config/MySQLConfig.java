@@ -1,6 +1,7 @@
 package com.miko.appinstall.config;
 
 import com.miko.appinstall.model.entity.ApplicationEntity;
+import com.miko.appinstall.model.entity.InstallationQueueEntity;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import java.util.Map;
@@ -22,6 +23,7 @@ public class MySQLConfig {
     hibernateConfig.setProperty("hibernate.show_sql", String.valueOf(hibernateConfigYaml.get("show_sql")));
 
     hibernateConfig.addAnnotatedClass(ApplicationEntity.class);
+    hibernateConfig.addAnnotatedClass(InstallationQueueEntity.class);
 
     this.sessionFactory = hibernateConfig.buildSessionFactory();
   }

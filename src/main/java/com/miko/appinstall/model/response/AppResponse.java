@@ -76,4 +76,11 @@ public class AppResponse<T> {
     this.contentType = "application/json";
     return this;
   }
+
+  public AppResponse<T> badRequest(String s) {
+    this.statusCode = 400;
+    this.body =(T) Map.of("error", s);
+    this.contentType = "application/json";
+    return this;
+  }
 }

@@ -18,7 +18,7 @@ public class ApplicationEntity extends AuditModel {
   @Column(name = "app_name", nullable = false)
   private String appName;
 
-  @Column(name = "version", nullable = false)
+  @Column(name = "version")
   private String version;
 
   public ApplicationEntity(ApplicationRequest applicationRequest) {

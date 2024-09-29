@@ -9,7 +9,6 @@ import io.vertx.core.Future;
 import io.vertx.ext.web.RoutingContext;
 import lombok.RequiredArgsConstructor;
 
-
 @RequiredArgsConstructor
 public class ApplicationHandler {
 
@@ -19,12 +18,17 @@ public class ApplicationHandler {
   public void fetchAllApps(RoutingContext routingContext) {
     applicationRepository.findAll()
       .onSuccess(applications -> {
-        new AppResponse()
+        new AppResponse<>()
           .json(applications)
+          .send(routingContext);
+      })
+      .onFailure(failure -> {
+        new AppResponse<>()
+          .status(500)
+          .json("Failed to fetch applications: " + failure.getMessage())
           .send(routingContext);
       });
   }
-
 
   /**
    * Check if the application already exists in the database, if not add it.
@@ -43,26 +47,30 @@ public class ApplicationHandler {
         }
       });
   }
+
   public void installApp(RoutingContext routingContext) {
+
     ApplicationRequest applicationRequest = routingContext.getBodyAsJson().mapTo(ApplicationRequest.class);
+
     applicationRequest.validate()
-      .compose(v -> {
-        ApplicationEntity applicationEntity = this.addApp(applicationRequest).result();
+      .compose(v -> addApp(applicationRequest))
+      .compose(applicationEntity -> {
         InstallationQueueEntity installationQueueEntity = new InstallationQueueEntity(applicationEntity.getId());
         return installationHandler.addToInstallationQueue(installationQueueEntity)
-          .compose(queueSuccess -> applicationRepository.save(applicationEntity));
+          .compose(queueSuccess -> Future.succeededFuture(applicationEntity));  // Return the applicationEntity for the next step
+      })
+      .compose(savedApp -> {
+        return applicationRepository.save(savedApp);
       })
       .onSuccess(savedApp -> {
+        // Send success response
         new AppResponse<>()
           .json(savedApp)
           .status(201)
           .send(routingContext);
       })
       .onFailure(failure -> {
-        new AppResponse<>()
-          .status(400)
-          .json("Failed in adding application to installation queue: " + failure.getMessage())
-          .send(routingContext);
+        new AppResponse().badRequest("Failed in adding application to installation queue: " + failure.getMessage()).send(routingContext);
       });
   }
 }

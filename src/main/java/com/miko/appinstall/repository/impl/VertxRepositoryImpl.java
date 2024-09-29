@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VertxRepositoryImpl<T, ID extends Serializable> implements VertxRepository<T, ID> {
 
-  private final SessionFactory sessionFactory;
+  public final SessionFactory sessionFactory;
   private final Class<T> entityType;
 
   @Override
