@@ -1,7 +1,8 @@
-package com.miko.appinstall;
+package com.miko.appinstall.verticle;
 
 import com.influxdb.client.InfluxDBClient;
 import com.miko.appinstall.annotation.scanner.AnnotationRouteScanner;
+import com.miko.appinstall.codec.InstallationQueueEntityCodec;
 import com.miko.appinstall.config.AppConfig;
 import com.miko.appinstall.config.InfluxDBConfig;
 import com.miko.appinstall.config.MySQLConfig;
@@ -9,20 +10,19 @@ import com.miko.appinstall.controller.ApplicationController;
 import com.miko.appinstall.controller.WelcomeController;
 import com.miko.appinstall.handler.ApplicationHandler;
 import com.miko.appinstall.handler.GlobalErrorHandler;
-import com.miko.appinstall.handler.InstallationHandler;
+import com.miko.appinstall.handler.InstallationQueueHandler;
 import com.miko.appinstall.listener.InstallationQueueEntityListener;
 import com.miko.appinstall.repository.ApplicationRepository;
 import com.miko.appinstall.repository.InstallationQueueRepository;
 import com.miko.appinstall.repository.impl.ApplicationRepositoryImpl;
 import com.miko.appinstall.repository.impl.InstallationQueueRepositoryImpl;
-import com.miko.appinstall.repository.impl.VertxRepositoryImpl;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Promise;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.hibernate.SessionFactory;
-import org.influxdb.InfluxDB;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,8 +49,8 @@ public class MainVerticle extends AbstractVerticle {
     ApplicationRepository applicationRepository = new ApplicationRepositoryImpl(sessionFactory);
     InstallationQueueRepository installationQueueRepository = new InstallationQueueRepositoryImpl(sessionFactory,installationQueueEntityListener);
 
-    InstallationHandler installationHandler = new InstallationHandler(installationQueueRepository);
-    ApplicationHandler applicationHandler = new ApplicationHandler(applicationRepository, installationHandler);
+    InstallationQueueHandler installationQueueHandler = new InstallationQueueHandler(installationQueueRepository,vertx);
+    ApplicationHandler applicationHandler = new ApplicationHandler(applicationRepository, installationQueueHandler);
 
     ApplicationController applicationController = new ApplicationController(applicationHandler);
     WelcomeController welcomeController = new WelcomeController();
@@ -59,14 +59,17 @@ public class MainVerticle extends AbstractVerticle {
 
     router
       .route()
-      .handler(BodyHandler.create()) // Add BodyHandler first to handle request bodies
-      .handler(this::setDefaultContentType) // Then handle setting content type
+      .handler(BodyHandler.create())
+      .handler(this::setDefaultContentType)
       .failureHandler(GlobalErrorHandler::handleFailure);
     Map<Class<?>, Object> controllerInstances = new HashMap<>();
     controllerInstances.put(ApplicationController.class, applicationController);
     controllerInstances.put(WelcomeController.class, welcomeController);
     AnnotationRouteScanner routeScanner = new AnnotationRouteScanner(router,controllerInstances);
     routeScanner.scanAndRegisterRoutes("com.miko.appinstall.controller");
+
+    vertx.eventBus().registerCodec(new InstallationQueueEntityCodec());
+    vertx.deployVerticle(new InstallationWorkerVerticle(installationQueueRepository));
 
     vertx.createHttpServer().requestHandler(router).listen(httpPort, httpResult -> {
       if (httpResult.succeeded()) {

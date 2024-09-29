@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 public class ApplicationHandler {
 
   private final ApplicationRepository applicationRepository;
-  private final InstallationHandler installationHandler;
+  private final InstallationQueueHandler installationQueueHandler;
 
   public void fetchAllApps(RoutingContext routingContext) {
     applicationRepository.findAll()
@@ -55,9 +55,9 @@ public class ApplicationHandler {
     applicationRequest.validate()
       .compose(v -> addApp(applicationRequest))
       .compose(applicationEntity -> {
-        InstallationQueueEntity installationQueueEntity = new InstallationQueueEntity(applicationEntity.getId());
-        return installationHandler.addToInstallationQueue(installationQueueEntity)
-          .compose(queueSuccess -> Future.succeededFuture(applicationEntity));  // Return the applicationEntity for the next step
+        InstallationQueueEntity installationQueueEntity = new InstallationQueueEntity(applicationEntity.getId(),applicationRequest.getVersion());
+        return installationQueueHandler.addToInstallationQueue(installationQueueEntity)
+          .compose(queueSuccess -> Future.succeededFuture(applicationEntity));
       })
       .onSuccess(savedApp -> {
         new AppResponse<>()

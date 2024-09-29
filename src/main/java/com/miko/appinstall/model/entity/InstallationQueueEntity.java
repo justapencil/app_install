@@ -41,7 +41,8 @@ public class InstallationQueueEntity extends AuditModel  {
   @Column(name = "retry_reason")
   private String retryReason;
 
-  public InstallationQueueEntity(Long id) {
+  public InstallationQueueEntity(Long id,String version) {
     this.appId = id;
+    this.version = version;
   }
 }

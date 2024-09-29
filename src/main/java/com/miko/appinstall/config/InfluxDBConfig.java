@@ -17,7 +17,6 @@ public class InfluxDBConfig {
           influxDBClient = InfluxDBClientFactory.create(influxDBUrl, influxDBToken.toCharArray(), influxDBOrg, influxDBBucket);
           log.info("InfluxDBClient initialized with URL: {}", influxDBUrl);
 
-          // Test the connection by pinging InfluxDB
           try {
             if (influxDBClient.ping().booleanValue()) {
               log.info("Successfully connected to InfluxDB.");

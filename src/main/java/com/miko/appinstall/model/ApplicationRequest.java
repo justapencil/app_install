@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 public class ApplicationRequest {
   private String name;
+  private String version;
 
   public Future<Object> validate() {
     if (name == null || name.isBlank()) {

@@ -16,7 +16,7 @@ import java.util.Map;
 public class AnnotationRouteScanner {
 
   private final Router router;
-  private final Map<Class<?>, Object> controllerInstances; // Map of controller class to instance
+  private final Map<Class<?>, Object> controllerInstances;
 
   public AnnotationRouteScanner(Router router, Map<Class<?>, Object> controllerInstances) {
     this.router = router;
@@ -49,7 +49,7 @@ public class AnnotationRouteScanner {
             } catch (InvocationTargetException e) {
               Throwable cause = e.getCause();
               log.error("Error invoking method: " + method.getName(), cause);
-              ctx.fail(500, cause); // Fails with the root cause
+              ctx.fail(500, cause);
             } catch (Exception e) {
               log.error("Unexpected error invoking method: " + method.getName(), e);
               ctx.fail(500, e);

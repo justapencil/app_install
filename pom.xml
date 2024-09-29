@@ -19,7 +19,7 @@
     <vertx.version>4.5.10</vertx.version>
     <junit-jupiter.version>5.9.1</junit-jupiter.version>
 
-    <main.verticle>com.miko.appinstall.MainVerticle</main.verticle>
+    <main.verticle>com.miko.appinstall.verticle.MainVerticle</main.verticle>
     <launcher.class>io.vertx.core.Launcher</launcher.class>
   </properties>
 

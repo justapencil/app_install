@@ -36,7 +36,6 @@ public class InstallationQueueEntityListener {
       .addField("retryReason", entity.getRetryReason() != null ? entity.getRetryReason() : "")
       .time(Instant.now(), WritePrecision.NS);
 
-    // Use the InfluxDB client to write data
     try (WriteApi writeApi = influxDBClient.getWriteApi()) {
       writeApi.writePoint(point);
       log.info("Installation event written to InfluxDB");

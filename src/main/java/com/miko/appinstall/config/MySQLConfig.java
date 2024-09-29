@@ -11,10 +11,9 @@ public class MySQLConfig {
   private final SessionFactory sessionFactory;
 
   public MySQLConfig(Map<String, Object> mysqlConfig, Map<String, Object> hibernateConfigYaml) {
-    // Hibernate Configuration
+
     Configuration hibernateConfig = new Configuration();
 
-    // Set Hibernate properties dynamically from YAML
     hibernateConfig.setProperty("hibernate.dialect", (String) hibernateConfigYaml.get("dialect"));
     hibernateConfig.setProperty("hibernate.connection.url", (String) mysqlConfig.get("url"));
     hibernateConfig.setProperty("hibernate.connection.username", (String) mysqlConfig.get("user"));
