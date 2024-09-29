@@ -39,6 +39,10 @@ public class MainVerticle extends AbstractVerticle {
     AppConfig appConfig = new AppConfig();
     int httpPort = appConfig.getHttpPort();
 
+    InfluxDBConfig influxDBConfig = new InfluxDBConfig(appConfig.getInfluxDBConfig());
+    influxDBClient = influxDBConfig.getInfluxDBClient();
+    InstallationQueueEntityListener installationQueueEntityListener = new InstallationQueueEntityListener(influxDBClient);
+
     MySQLConfig mySQLConfig = new MySQLConfig(appConfig.getMySQLConfig(), appConfig.getHibernateConfig());
     sessionFactory = mySQLConfig.getSessionFactory();
 
@@ -50,9 +54,7 @@ public class MainVerticle extends AbstractVerticle {
 
     ApplicationController applicationController = new ApplicationController(applicationHandler);
     WelcomeController welcomeController = new WelcomeController();
-    InfluxDBConfig influxDBConfig = new InfluxDBConfig(appConfig.getInfluxDBConfig());
-    influxDBClient = influxDBConfig.getInfluxDBClient();
-    InstallationQueueEntityListener installationQueueEntityListener = new InstallationQueueEntityListener(influxDBClient);
+
     Router router = Router.router(vertx);
 
     router
