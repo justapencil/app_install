@@ -22,12 +22,13 @@ import io.vertx.core.Promise;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
-
+@Slf4j
 public class MainVerticle extends AbstractVerticle {
 
   private SessionFactory sessionFactory;
@@ -69,11 +70,19 @@ public class MainVerticle extends AbstractVerticle {
     routeScanner.scanAndRegisterRoutes("com.miko.appinstall.controller");
 
     vertx.eventBus().registerCodec(new InstallationQueueEntityCodec());
-    vertx.deployVerticle(new InstallationWorkerVerticle(installationQueueRepository));
+    DeploymentOptions options = new DeploymentOptions().setWorker(true);  // Set worker=true to make it a worker verticle
+
+    vertx.deployVerticle(new InstallationWorkerVerticle(installationQueueRepository), options, res -> {
+      if (res.succeeded()) {
+        log.info("InstallationWorkerVerticle deployed successfully.");
+      } else {
+        log.error("Failed to deploy InstallationWorkerVerticle: " + res.cause());
+      }
+    });
 
     vertx.createHttpServer().requestHandler(router).listen(httpPort, httpResult -> {
       if (httpResult.succeeded()) {
-        System.out.println("HTTP server started on port " + httpPort);
+        log.info("HTTP server started on port " + httpPort);
         startPromise.complete();
       } else {
         startPromise.fail(httpResult.cause());

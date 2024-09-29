@@ -30,6 +30,7 @@ public class InstallationQueueHandler {
           log.info("Installation already exists for app id {}", installationQueueEntity.getAppId());
           return handleExistingInstallation(existingEntity, installationQueueEntity);
         } else {
+          installationQueueEntity.setDefaultVersion();
           return saveAndProcessInstallation(installationQueueEntity, EventTypeEnum.ADD, EventStatusEnum.SCHEDULED);
         }
       })
@@ -54,11 +55,13 @@ public class InstallationQueueHandler {
 
       case COMPLETED:
         if (incomingEntity.getVersion() != null && !incomingEntity.getVersion().equals(existingEntity.getVersion())) {
+          existingEntity.setVersion(incomingEntity.getVersion());
           return saveAndProcessInstallation(existingEntity, EventTypeEnum.UPDATE, EventStatusEnum.SCHEDULED);
         }
         break;
 
       case ERROR:
+        existingEntity.resetRetry();
         return saveAndProcessInstallation(existingEntity, EventTypeEnum.ADD, EventStatusEnum.SCHEDULED);
 
       default:
@@ -77,6 +80,7 @@ public class InstallationQueueHandler {
   private Future<Void> handleScheduledOrPickedUp(InstallationQueueEntity existingEntity, InstallationQueueEntity incomingEntity) {
     if (incomingEntity.getVersion() != null) {
       if (existingEntity.getVersion() == null || !existingEntity.getVersion().equals(incomingEntity.getVersion())) {
+        existingEntity.setVersion(incomingEntity.getVersion());
         return saveAndProcessInstallation(existingEntity, EventTypeEnum.UPDATE, EventStatusEnum.SCHEDULED);
       }
     }

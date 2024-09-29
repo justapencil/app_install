@@ -24,7 +24,7 @@ public class InstallationQueueEntityListener {
 
   private void writeToInfluxDB(InstallationQueueEntity entity) {
     log.info("Writing installation event to InfluxDB");
-    String measurement = "app_installation_logs";
+    String measurement = "app_installation_logs_v1";
 
     Point point = Point
       .measurement(measurement)

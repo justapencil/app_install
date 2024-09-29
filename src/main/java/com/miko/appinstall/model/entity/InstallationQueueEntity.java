@@ -45,4 +45,15 @@ public class InstallationQueueEntity extends AuditModel  {
     this.appId = id;
     this.version = version;
   }
+
+  public void setDefaultVersion() {
+    if (this.version == null) {
+      this.version = "1.0.0";
+    }
+  }
+
+  public void resetRetry() {
+    this.retryAttempt = 0;
+    this.retryReason = null;
+  }
 }

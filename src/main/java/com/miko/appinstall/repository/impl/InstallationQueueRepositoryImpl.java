@@ -9,6 +9,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import java.util.List;
+
 public class InstallationQueueRepositoryImpl extends VertxRepositoryImpl<InstallationQueueEntity, Long> implements InstallationQueueRepository {
 
   private final InstallationQueueEntityListener entityListener;
@@ -41,7 +43,6 @@ public class InstallationQueueRepositoryImpl extends VertxRepositoryImpl<Install
           .createQuery("FROM InstallationQueueEntity WHERE appId = :appId", InstallationQueueEntity.class)
           .setParameter("appId", installationQueueEntity.getAppId())
           .uniqueResult();
-
         if (result != null) {
           promise.complete(result);
         } else {
@@ -53,5 +54,20 @@ public class InstallationQueueRepositoryImpl extends VertxRepositoryImpl<Install
     });
 
     return future;
+  }
+
+  @Override
+  public Future<List<InstallationQueueEntity>> findAllErrorTasks() {
+    Promise<List<InstallationQueueEntity>> promise = Promise.promise();
+    try (Session session = sessionFactory.openSession()) {
+      List<InstallationQueueEntity> resultList = session
+        .createQuery("FROM InstallationQueueEntity WHERE eventStatus = :status", InstallationQueueEntity.class)
+        .setParameter("status", "ERROR")
+        .list();
+      promise.complete(resultList);
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+    return promise.future();
   }
 }
