@@ -47,7 +47,7 @@ public class MainVerticle extends AbstractVerticle {
     sessionFactory = mySQLConfig.getSessionFactory();
 
     ApplicationRepository applicationRepository = new ApplicationRepositoryImpl(sessionFactory);
-    InstallationQueueRepository installationQueueRepository = new InstallationQueueRepositoryImpl(sessionFactory);
+    InstallationQueueRepository installationQueueRepository = new InstallationQueueRepositoryImpl(sessionFactory,installationQueueEntityListener);
 
     InstallationHandler installationHandler = new InstallationHandler(installationQueueRepository);
     ApplicationHandler applicationHandler = new ApplicationHandler(applicationRepository, installationHandler);

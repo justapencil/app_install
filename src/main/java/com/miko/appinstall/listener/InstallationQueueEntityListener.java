@@ -4,12 +4,9 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.WriteApi;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
-import com.miko.appinstall.config.InfluxDBConfig;
 import com.miko.appinstall.model.entity.InstallationQueueEntity;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import java.time.Instant;
 
 @Slf4j
@@ -21,15 +18,13 @@ public class InstallationQueueEntityListener {
     this.influxDBClient = influxDBClient;
   }
 
-  @PrePersist
-  @PreUpdate
   public void logInstallationEvent(InstallationQueueEntity entity) {
     writeToInfluxDB(entity);
   }
 
   private void writeToInfluxDB(InstallationQueueEntity entity) {
     log.info("Writing installation event to InfluxDB");
-    String measurement = "installation_logs";
+    String measurement = "app_installation_logs";
 
     Point point = Point
       .measurement(measurement)

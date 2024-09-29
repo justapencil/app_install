@@ -15,7 +15,6 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "installation_queue")
-@EntityListeners(InstallationQueueEntityListener.class)
 public class InstallationQueueEntity extends AuditModel  {
 
   @Id
