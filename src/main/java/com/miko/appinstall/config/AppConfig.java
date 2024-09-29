@@ -41,4 +41,8 @@ public class AppConfig {
   public Map<String, Object> getInfluxDBConfig() {
     return (Map<String, Object>) config.get("influxdb");
   }
+
+  public Map<String, Object> getSmptConfig() {
+    return (Map<String, Object>) config.get("smpt");
+  }
 }

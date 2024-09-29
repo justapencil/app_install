@@ -9,6 +9,7 @@ import com.miko.appinstall.config.MySQLConfig;
 import com.miko.appinstall.controller.ApplicationController;
 import com.miko.appinstall.controller.WelcomeController;
 import com.miko.appinstall.handler.ApplicationHandler;
+import com.miko.appinstall.handler.EmailHandler;
 import com.miko.appinstall.handler.GlobalErrorHandler;
 import com.miko.appinstall.handler.InstallationQueueHandler;
 import com.miko.appinstall.listener.InstallationQueueEntityListener;
@@ -69,10 +70,12 @@ public class MainVerticle extends AbstractVerticle {
     AnnotationRouteScanner routeScanner = new AnnotationRouteScanner(router,controllerInstances);
     routeScanner.scanAndRegisterRoutes("com.miko.appinstall.controller");
 
+    EmailHandler emailHandler = new EmailHandler(appConfig.getSmptConfig());
+
     vertx.eventBus().registerCodec(new InstallationQueueEntityCodec());
     DeploymentOptions options = new DeploymentOptions().setWorker(true);
 
-    vertx.deployVerticle(new InstallationWorkerVerticle(installationQueueRepository), options, res -> {
+    vertx.deployVerticle(new InstallationWorkerVerticle(installationQueueRepository,emailHandler), options, res -> {
       if (res.succeeded()) {
         log.info("InstallationWorkerVerticle deployed successfully.");
       } else {

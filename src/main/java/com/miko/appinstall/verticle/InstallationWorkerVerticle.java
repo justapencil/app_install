@@ -1,6 +1,7 @@
 package com.miko.appinstall.verticle;
 
 import com.miko.appinstall.constant.enums.EventStatusEnum;
+import com.miko.appinstall.handler.EmailHandler;
 import com.miko.appinstall.model.entity.InstallationQueueEntity;
 import com.miko.appinstall.repository.InstallationQueueRepository;
 import io.vertx.core.AbstractVerticle;
@@ -17,10 +18,12 @@ public class InstallationWorkerVerticle extends AbstractVerticle {
 
   private static final int MAX_RETRY_ATTEMPTS = 3;
   private final InstallationQueueRepository installationQueueRepository;
+  private final EmailHandler emailHandler;
   private final AtomicInteger activeTasks = new AtomicInteger(0);
 
-  public InstallationWorkerVerticle(InstallationQueueRepository installationQueueRepository) {
+  public InstallationWorkerVerticle(InstallationQueueRepository installationQueueRepository, EmailHandler emailHandler) {
     this.installationQueueRepository = installationQueueRepository;
+    this.emailHandler = emailHandler;
   }
 
   @Override
@@ -92,9 +95,26 @@ public class InstallationWorkerVerticle extends AbstractVerticle {
       task.setEventStatus(EventStatusEnum.ERROR);
       updateInstallationStatus(task, EventStatusEnum.ERROR).onComplete(res -> {
         log.info("Task permanently failed after {} retries for app id: {}", MAX_RETRY_ATTEMPTS, task.getAppId());
+        triggerEmailNotification(task, reason);
         completeTaskProcessing(task);
       });
     }
+  }
+
+  /**
+   * Triggers an email notification to the admin when a task fails after 3 attempts.
+   *
+   * @param task
+   * @param reason
+   */
+  private void triggerEmailNotification(InstallationQueueEntity task, String reason) {
+    String subject = "Installation Task Failed After 3 Attempts";
+    String messageBody = String.format(
+      "Task with app id: %d has failed after 3 retry attempts. Reason: %s",
+      task.getAppId(),
+      reason
+    );
+    emailHandler.sendEmail("admin@miko.com", subject, messageBody);
   }
 
   private void completeTaskProcessing(InstallationQueueEntity task) {

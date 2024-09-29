@@ -14,5 +14,11 @@ influxdb:
   org: miko
   bucket: app_installation_system
 
+smpt:
+    host: smtp.gmail.com
+    port: 587
+    email:
+    password:
+
 http:
   port: 8080

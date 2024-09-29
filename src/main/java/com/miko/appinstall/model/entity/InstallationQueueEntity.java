@@ -14,7 +14,9 @@ import javax.persistence.*;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "installation_queue")
+@Table(name = "installation_queue", indexes = {
+  @Index(name = "idx_app_id", columnList = "app_id"),
+})
 public class InstallationQueueEntity extends AuditModel  {
 
   @Id
